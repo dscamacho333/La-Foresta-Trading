@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenido a La Foresta</title>
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+<div class="container">
+    <nav class="top-nav">
+        <div class="nav-left">
+            <a th:href="@{/}" class="logo">
+                <img src="/img/logo/logoLaForesta.png" alt="Logo La Foresta" />
+            </a>
+
+            <ul class="nav-links">
+                <li><a th:href="@{/}">Inicio</a></li>
+
+                <li class="dropdown">
+                    <a href="#">Nosotros</a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-item">
+                            <span>Quiénes somos</span>
+                            <div class="tooltip-panel">
+                                Somos un equipo apasionado por la tecnología y las finanzas, comprometido con ofrecer una plataforma robusta y eficiente para el inversionista moderno.
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <span>Misión</span>
+                            <div class="tooltip-panel">
+                                Ser la aplicación líder en Colombia para el day trading, ofreciendo herramientas intuitivas, seguras y eficientes para todos los niveles de experiencia.
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <span>Visión</span>
+                            <div class="tooltip-panel">
+                                Convertirnos en la plataforma de referencia en Latinoamérica, brindando acceso a los mercados financieros globales con innovación y confianza.
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="dropdown">
+                    <a href="#">Servicios</a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-item">
+                            <span>Compra y venta de acciones</span>
+                            <div class="tooltip-panel">
+                                Ejecuta órdenes de compra o venta en tiempo real con distintos tipos de orden: market, limit, stop y más.
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <span>Dashboards interactivos</span>
+                            <div class="tooltip-panel">
+                                Visualiza el comportamiento de tus activos con gráficos dinámicos, indicadores técnicos y análisis de rendimiento.
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <span>Gestión de watchlist</span>
+                            <div class="tooltip-panel">
+                                Crea, edita y monitorea tu lista personalizada de acciones favoritas para seguirlas de cerca en todo momento.
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="dropdown">
+                    <a href="#">Ayuda</a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-item">
+                            <span>Soporte técnico</span>
+                            <div class="tooltip-panel">
+                                Nuestro equipo está disponible para ayudarte con cualquier problema técnico, configuración o duda sobre el sistema.
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <span>Preguntas frecuentes</span>
+                            <div class="tooltip-panel">
+                                Accede a una base de conocimientos con respuestas detalladas sobre funcionalidades, seguridad, pagos y más.
+                            </div>
+                        </li>
+                        <li class="dropdown-item">
+                            <span>Contacto</span>
+                            <div class="tooltip-panel">
+                                Escríbenos directamente por correo electrónico o utiliza nuestro formulario de contacto para recibir asistencia personalizada.
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="nav-buttons">
+            <a th:href="@{/register}" class="btn btn-outline">Registrarse</a>
+            <a th:href="@{/login}" class="btn btn-filled">Iniciar Sesión</a>
+        </div>
+    </nav>
+
+    <main class="content homepage-center">
+        <h1>La Foresta Trading</h1>
+
+        <img src="/img/index/imagenIndex.jpg" alt="Dashboard de acciones" class="hero-image">
+
+        <div class="description-box">
+            <p>
+                Bienvenido a tu plataforma de inversión inteligente. <strong>La Foresta Trading</strong> está diseñada para inversionistas activos que practican <strong>day trading</strong> en los principales mercados bursátiles de Estados Unidos. Compra y vende acciones en tiempo real mediante diferentes <strong>tipos de órdenes</strong> (market, limit, stop), visualiza tu <strong>portafolio</strong> con claridad y accede a <strong>dashboards interactivos</strong> que muestran el comportamiento de tus activos. Además, puedes crear y administrar tu <strong>watchlist personalizada</strong> para tomar decisiones estratégicas con mayor agilidad.
+            </p>
+        </div>
+    </main>
+</div>
+</body>
+</html>
