@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro - La foresta trading</title>
+    <link rel="stylesheet" href="/css/register.css">
+    <script>
+        function removeAccents(str) {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        }
+
+        function sanitizeForm() {
+            ['firstName', 'lastName', 'city', 'state'].forEach(id => {
+                const input = document.getElementById(id);
+                if (input && input.value) {
+                    input.value = removeAccents(input.value);
+                }
+            });
+        }
+
+        function openAgreementModal() {
+            document.getElementById("agreementModal").style.display = "block";
+        }
+
+        function closeAgreementModal() {
+            document.getElementById("agreementModal").style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById("agreementModal");
+            if (event.target === modal) {
+                closeAgreementModal();
+            }
+        }
+
+        function closeToast(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        setTimeout(() => {
+            const successToast = document.getElementById('toast-success');
+            const errorToast = document.getElementById('toast-error');
+            if (successToast) successToast.style.display = 'none';
+            if (errorToast) errorToast.style.display = 'none';
+        }, 5000);
+    </script>
+</head>
+<body>
+<!-- NAVBAR INICIO -->
+<nav class="top-nav">
+    <div class="nav-left">
+        <a th:href="@{/}" class="logo">
+            <img src="/img/logo/logoLaForesta.png" alt="Logo La Foresta" />
+        </a>
+
+        <ul class="nav-links">
+            <li><a th:href="@{/}">Inicio</a></li>
+
+            <li class="dropdown">
+                <a href="#">Nosotros</a>
+                <ul class="dropdown-menu">
+                    <li class="dropdown-item">
+                        <span>Quiénes somos</span>
+                        <div class="tooltip-panel">
+                            Somos un equipo apasionado por la tecnología y las finanzas, comprometido con ofrecer una plataforma robusta y eficiente para el inversionista moderno.
+                        </div>
+                    </li>
+                    <li class="dropdown-item">
+                        <span>Misión</span>
+                        <div class="tooltip-panel">
+                            Ser la aplicación líder en Colombia para el day trading, ofreciendo herramientas intuitivas, seguras y eficientes para todos los niveles de experiencia.
+                        </div>
+                    </li>
+                    <li class="dropdown-item">
+                        <span>Visión</span>
+                        <div class="tooltip-panel">
+                            Convertirnos en la plataforma de referencia en Latinoamérica, brindando acceso a los mercados financieros globales con innovación y confianza.
+                        </div>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="dropdown">
+                <a href="#">Servicios</a>
+                <ul class="dropdown-menu">
+                    <li class="dropdown-item">
+                        <span>Compra y venta de acciones</span>
+                        <div class="tooltip-panel">
+                            Ejecuta órdenes de compra o venta en tiempo real con distintos tipos de orden: market, limit, stop y más.
+                        </div>
+                    </li>
+                    <li class="dropdown-item">
+                        <span>Dashboards interactivos</span>
+                        <div class="tooltip-panel">
+                            Visualiza el comportamiento de tus activos con gráficos dinámicos, indicadores técnicos y análisis de rendimiento.
+                        </div>
+                    </li>
+                    <li class="dropdown-item">
+                        <span>Gestión de watchlist</span>
+                        <div class="tooltip-panel">
+                            Crea, edita y monitorea tu lista personalizada de acciones favoritas para seguirlas de cerca en todo momento.
+                        </div>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="dropdown">
+                <a href="#">Ayuda</a>
+                <ul class="dropdown-menu">
+                    <li class="dropdown-item">
+                        <span>Soporte técnico</span>
+                        <div class="tooltip-panel">
+                            Nuestro equipo está disponible para ayudarte con cualquier problema técnico, configuración o duda sobre el sistema.
+                        </div>
+                    </li>
+                    <li class="dropdown-item">
+                        <span>Preguntas frecuentes</span>
+                        <div class="tooltip-panel">
+                            Accede a una base de conocimientos con respuestas detalladas sobre funcionalidades, seguridad, pagos y más.
+                        </div>
+                    </li>
+                    <li class="dropdown-item">
+                        <span>Contacto</span>
+                        <div class="tooltip-panel">
+                            Escríbenos directamente por correo electrónico o utiliza nuestro formulario de contacto para recibir asistencia personalizada.
+                        </div>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="nav-buttons">
+        <a th:href="@{/login}" class="btn btn-filled">Iniciar Sesión</a>
+    </div>
+</nav>
+<!-- NAVBAR FIN -->
+<div class="register-box">
+    <h2>Registrarse</h2>
+
+    <div th:if="${success}" id="toast-success" class="toast toast-success">
+        <span th:text="${success}"></span>
+        <button class="toast-close" onclick="closeToast('toast-success')">&times;</button>
+    </div>
+    <div th:if="${error}" id="toast-error" class="toast toast-error">
+        <span th:text="${error}"></span>
+        <button class="toast-close" onclick="closeToast('toast-error')">&times;</button>
+    </div>
+
+    <form th:action="@{/register}" method="post" class="register-form" onsubmit="sanitizeForm()">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="email">Correo electrónico</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Número de teléfono</label>
+                <input type="tel" id="phone" name="phone" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="street">Dirección</label>
+                <input type="text" id="street" name="street" required>
+            </div>
+            <div class="form-group">
+                <label for="city">Ciudad</label>
+                <input type="text" id="city" name="city" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="state">Departamento</label>
+                <input type="text" id="state" name="state" required>
+            </div>
+            <div class="form-group">
+                <label for="postalCode">Código postal</label>
+                <input type="text" id="postalCode" name="postalCode" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="firstName">Primer nombre</label>
+                <input type="text" id="firstName" name="firstName" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Primer apellido</label>
+                <input type="text" id="lastName" name="lastName" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="birthDate">Fecha de nacimiento</label>
+                <input type="date" id="birthDate" name="birthDate" required>
+            </div>
+            <div class="form-group">
+                <label for="idNumber">Número de identificación (Cédula)</label>
+                <input type="text" id="idNumber" name="idNumber" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirmar contraseña</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Declaraciones Regulatorias</h3>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="isControlPerson"> ¿Eres una persona de control en una empresa pública?</label>
+            </div>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="isAffiliatedExchangeOrFinra"> ¿Estás afiliado a una bolsa o a FINRA?</label>
+            </div>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="isAffiliatedExchangeOrIiroc"> ¿Estás afiliado a IIROC (Canadá)?</label>
+            </div>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="isPoliticallyExposed"> ¿Eres una persona políticamente expuesta?</label>
+            </div>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="immediateFamilyExposed"> ¿Tienes familiares políticamente expuestos?</label>
+            </div>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="isDiscretionary"> ¿Darás autoridad discrecional a tu asesor?</label>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" name="agreedToTerms" required>
+                    Acepto los <a href="#" onclick="openAgreementModal(); return false;">Términos y Condiciones</a> del Acuerdo de Cliente de Alpaca.
+                </label>
+            </div>
+        </div>
+
+        <div id="agreementModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeAgreementModal()">&times;</span>
+                <h3>Acuerdo de Cliente de Alpaca</h3>
+                <div class="modal-body">
+                    <p>Este Acuerdo regula la relación entre usted y Alpaca Securities LLC...</p>
+                    <p>Al aceptarlo, declara que comprende los riesgos de inversión, que es mayor de edad, y que proporciona información verídica.</p>
+                    <p>Alpaca puede requerir verificación de identidad, reportar actividades sospechosas y aplicar restricciones si se infringen las reglas regulatorias.</p>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn">Registrarse</button>
+    </form>
+</div>
+</body>
+</html>
