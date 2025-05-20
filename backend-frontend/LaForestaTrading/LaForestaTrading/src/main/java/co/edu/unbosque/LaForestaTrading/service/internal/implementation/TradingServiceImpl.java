@@ -13,6 +13,7 @@ import co.edu.unbosque.LaForestaTrading.service.internal.interfaces.ITradingServ
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,12 +25,14 @@ public class TradingServiceImpl implements ITradingService {
     private final IUserRepository repo;
     private final ModelMapper modelMapper;
     private final IAlpacaService alpacaService;
+    private final PasswordEncoder passwordEncoder;
 
 
-    public TradingServiceImpl(IUserRepository repo, ModelMapper modelMapper, IAlpacaService alpacaService) {
+    public TradingServiceImpl(IUserRepository repo, ModelMapper modelMapper, IAlpacaService alpacaService, PasswordEncoder passwordEncoder) {
         this.repo = repo;
         this.modelMapper = modelMapper;
         this.alpacaService = alpacaService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -54,7 +57,7 @@ public class TradingServiceImpl implements ITradingService {
             investor.setFirstName(accountResponseDTO.getIdentityDTO().getGivenName());
             investor.setLastName(accountResponseDTO.getIdentityDTO().getFamilyName());
             investor.setEmail(accountResponseDTO.getContactDTO().getEmailAddress());
-            investor.setPasswordHash(password);
+            investor.setPasswordHash(passwordEncoder.encode(password));
             investor.setStatus(UserStatus.ACTIVE);
             investor.setUserType(UserType.INVESTOR);
             investor.setRegistrationDate(LocalDateTime.now());
