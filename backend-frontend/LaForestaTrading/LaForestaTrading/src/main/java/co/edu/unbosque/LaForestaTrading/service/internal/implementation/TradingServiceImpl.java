@@ -1,9 +1,6 @@
 package co.edu.unbosque.LaForestaTrading.service.internal.implementation;
 
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.AccountDTO;
-import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.ContactDTO;
-import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.DisclosureDTO;
-import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.IdentityDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.AccountResponseDTO;
 import co.edu.unbosque.LaForestaTrading.entity.Investor;
 import co.edu.unbosque.LaForestaTrading.entity.enums.UserStatus;
@@ -11,9 +8,11 @@ import co.edu.unbosque.LaForestaTrading.entity.enums.UserType;
 import co.edu.unbosque.LaForestaTrading.exception.UserException;
 import co.edu.unbosque.LaForestaTrading.mapper.InvestorMapper;
 import co.edu.unbosque.LaForestaTrading.repository.IUserRepository;
+import co.edu.unbosque.LaForestaTrading.service.external.interfaces.IAlpacaService;
 import co.edu.unbosque.LaForestaTrading.service.internal.interfaces.ITradingService;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,69 +23,32 @@ public class TradingServiceImpl implements ITradingService {
 
     private final IUserRepository repo;
     private final ModelMapper modelMapper;
+    private final IAlpacaService alpacaService;
 
 
-    public TradingServiceImpl(IUserRepository repo, ModelMapper modelMapper) {
+    public TradingServiceImpl(IUserRepository repo, ModelMapper modelMapper, IAlpacaService alpacaService) {
         this.repo = repo;
         this.modelMapper = modelMapper;
+        this.alpacaService = alpacaService;
     }
 
     @Override
     public boolean register(AccountDTO dto, String password) {
 
-        try{
-            AccountResponseDTO accountResponseDTO = new AccountResponseDTO(
-                    "xxxxxxxxxxxxyyyyyyyy",
-                    "xxxxxxyyyyyy",
-                    "SUBMITTED",
-                    "INACTIVE",
-                    "USD",
-                    "0.00",
-                    "2025-05-19T00:01:14.14068Z",
+        try {
 
-                    new ContactDTO(
-                            dto.getContactDTO().getEmailAddress(),
-                            dto.getContactDTO().getPhoneNumber(),
-                            dto.getContactDTO().getStreetAddress(),
-                            dto.getContactDTO().getCity(),
-                            dto.getContactDTO().getState(),
-                            dto.getContactDTO().getPostalCode()
-                    ),
+            Investor investor = repo.findByTaxId(dto.getIdentityDTO().getTaxId());
 
-                    new IdentityDTO(
-                            dto.getIdentityDTO().getGivenName(),
-                            dto.getIdentityDTO().getFamilyName(),
-                            dto.getIdentityDTO().getDateOfBirth(),
-                            dto.getIdentityDTO().getCountryOfCitizenship(),
-                            dto.getIdentityDTO().getCountryOfBirth(),
-                            dto.getIdentityDTO().getPartyType(),
-                            dto.getIdentityDTO().getTaxId(),
-                            dto.getIdentityDTO().getTaxIdType(),
-                            dto.getIdentityDTO().getCountryOfTaxResidence(),
-                            dto.getIdentityDTO().getFundingSource()
-                    ),
+            if(investor != null){
+                throw new UserException("Número de identificación duplicado");
+            }
 
-                    new DisclosureDTO(
-                            dto.getDisclosureDTO().isControlPerson(),
-                            dto.getDisclosureDTO().isAffiliatedExchangeOrFinra(),
-                            dto.getDisclosureDTO().isAffiliatedExchangeOrIiroc(),
-                            dto.getDisclosureDTO().isPoliticallyExposed(),
-                            dto.getDisclosureDTO().isImmediateFamilyExposed(),
-                            dto.getDisclosureDTO().isDiscretionary()
-                    ),
+            investor = new Investor();
 
-                    dto.getAgreementsDTO(),
+            AccountResponseDTO accountResponseDTO;
+            accountResponseDTO = alpacaService.createAccount(dto);
 
-                    "trading",
-                    "margin",
-                    null,
-                    List.of("us_equity")
-            );
-
-            Investor investor = new Investor();
-
-
-            investor = InvestorMapper.fromAccountResponseDTO(accountResponseDTO, investor, password);
+            investor = InvestorMapper.fromAccountResponseDTO(accountResponseDTO, investor, password, dto.getIdentityDTO().getTaxId());
 
 
             investor.setFirstName(accountResponseDTO.getIdentityDTO().getGivenName());
@@ -98,15 +60,32 @@ public class TradingServiceImpl implements ITradingService {
             investor.setRegistrationDate(LocalDateTime.now());
 
             repo.save(investor);
-        }
-        catch(DataIntegrityViolationException e){
+
+        } catch (DataIntegrityViolationException e) {
             throw new UserException("Los siguientes campos deben ser unicos: Correo electronico y número de identificación");
-        }
-        catch(UserException e){
+        } catch (UserException e) {
             throw new UserException(e.getMessage());
         }
 
         return true;
+    }
+
+    @Scheduled(fixedDelay = 60000)
+    @Override
+    public void verificarCuentasPendientes() {
+        List<Investor> pendientes = repo.findByAlpacaStatus("SUBMITTED");
+
+        for (Investor investor : pendientes) {
+            try {
+                AccountResponseDTO response = alpacaService.getAnAccountById(investor.getAlpacaId());
+                if ("ACTIVE".equalsIgnoreCase(response.getStatus())) {
+                    investor = InvestorMapper.fromAccountResponseDTO(response,investor, investor.getPasswordHash(), investor.getTaxId());
+                    repo.save(investor);
+                }
+            } catch (Exception e) {
+                System.err.println("Error al verificar cuenta de " + investor.getEmail() + ": " + e.getMessage());
+            }
+        }
     }
 
 }

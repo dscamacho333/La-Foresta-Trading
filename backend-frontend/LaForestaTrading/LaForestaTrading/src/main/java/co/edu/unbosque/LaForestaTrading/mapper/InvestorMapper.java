@@ -1,5 +1,6 @@
 package co.edu.unbosque.LaForestaTrading.mapper;
 
+import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.AccountDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.ContactDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.DisclosureDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.IdentityDTO;
@@ -16,7 +17,7 @@ import java.time.Period;
 
 public class InvestorMapper {
 
-    public static Investor fromAccountResponseDTO(AccountResponseDTO dto, Investor investorBase, String passwordHash) {
+    public static Investor fromAccountResponseDTO(AccountResponseDTO dto, Investor investorBase, String passwordHash, String taxId) {
 
         ContactDTO contact = dto.getContactDTO();
         IdentityDTO identity = dto.getIdentityDTO();
@@ -52,7 +53,7 @@ public class InvestorMapper {
         investorBase.setCountryOfBirth(identity.getCountryOfBirth());
         investorBase.setPartyType(identity.getPartyType());
         investorBase.setTaxIdType(identity.getTaxIdType());
-        investorBase.setTaxId(identity.getTaxId());
+        investorBase.setTaxId(taxId);
         investorBase.setCountryOfTaxResidence(identity.getCountryOfTaxResidence());
 
         // Disclosure
@@ -82,6 +83,7 @@ public class InvestorMapper {
         if (input != null && input.matches("\\d+")){
             return true;
         }else{
+            System.out.println("input = " + input);
             throw new UserException("El número de identificación solo puede contener números");
         }
     }

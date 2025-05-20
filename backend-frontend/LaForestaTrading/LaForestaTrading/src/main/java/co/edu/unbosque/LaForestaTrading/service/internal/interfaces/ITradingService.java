@@ -6,4 +6,6 @@ public interface ITradingService {
 
     boolean register(AccountDTO dto, String password);
 
+    void verificarCuentasPendientes();
+
 }
