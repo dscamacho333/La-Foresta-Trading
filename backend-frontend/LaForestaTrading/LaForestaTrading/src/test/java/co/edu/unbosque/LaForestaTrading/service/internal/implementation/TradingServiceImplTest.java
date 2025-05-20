@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,12 +23,13 @@ public class TradingServiceImplTest {
     private IUserRepository repo;
     private IAlpacaService alpacaService;
     private TradingServiceImpl service;
+    private PasswordEncoder passwordEncoder;
 
     @BeforeEach
     public void setUp() {
         repo = mock(IUserRepository.class);
         alpacaService = mock(IAlpacaService.class);
-        service = new TradingServiceImpl(repo, new ModelMapper(), alpacaService);
+        service = new TradingServiceImpl(repo, new ModelMapper(), alpacaService, passwordEncoder);
     }
 
     @Test

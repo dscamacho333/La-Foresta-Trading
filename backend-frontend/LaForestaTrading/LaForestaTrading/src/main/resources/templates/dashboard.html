@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard | La Foresta</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+<nav class="top-nav">
+    <div class="nav-left">
+        <a th:href="@{/dashboard}" class="logo">
+            <img src="/img/logo/logoLaForesta.png" alt="Logo La Foresta">
+        </a>
+        <span class="nav-title">Panel de Usuario</span>
+    </div>
+    <div class="nav-right">
+        <a th:href="@{/logout}" class="btn btn-logout">Cerrar sesión</a>
+    </div>
+</nav>
+
+<main class="dashboard">
+    <h1>
+        Bienvenido, <span th:text="${#authentication.principal.firstName}">Usuario</span>
+    </h1>
+
+    <div class="card-grid-row row-1">
+        <a th:href="@{/portafolio}" class="card-link">
+            <div class="card">
+                <h2>Portafolio</h2>
+                <p>Visualiza el estado actual de tus activos y rendimiento.</p>
+            </div>
+        </a>
+        <a th:href="@{/orders}" class="card-link">
+            <div class="card">
+                <h2>Órdenes</h2>
+                <p>Gestiona tus órdenes activas y pasadas.</p>
+            </div>
+        </a>
+        <a th:href="@{/watchlist}" class="card-link">
+            <div class="card">
+                <h2>Watchlist</h2>
+                <p>Accede a tu lista personalizada de acciones favoritas.</p>
+            </div>
+        </a>
+        <a th:href="@{/suscription}" class="card-link">
+            <div class="card">
+                <h2>Suscripción</h2>
+                <p>Administra tu plan premium y opciones de pago.</p>
+            </div>
+        </a>
+    </div>
+
+    <div class="card-grid-row row-2">
+        <a th:href="@{/trading}" class="card-link">
+            <div class="card">
+                <h2>Mercado</h2>
+                <p>Explora acciones disponibles y realiza operaciones de compra o venta.</p>
+            </div>
+        </a>
+        <a th:href="@{/profile}" class="card-link">
+            <div class="card">
+                <h2>Perfil</h2>
+                <p>Gestiona tu información personal y preferencias de usuario.</p>
+            </div>
+        </a>
+        <a th:href="@{/buyingPower}" class="card-link">
+            <div class="card">
+                <h2>Fondos</h2>
+                <p>Gestiona tu cuenta bancaria y transfiere fondos.</p>
+            </div>
+        </a>
+    </div>
+</main>
+</body>
+</html>
