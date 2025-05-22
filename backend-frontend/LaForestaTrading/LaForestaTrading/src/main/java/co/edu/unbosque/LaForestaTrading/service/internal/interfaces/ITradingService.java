@@ -15,4 +15,6 @@ public interface ITradingService {
 
     List<OrderDTO> listOrderdByInvestorId(Long investorId);
 
+    void verificarOrdenesPendientes();
+
 }

@@ -12,4 +12,6 @@ public interface IAlpacaService {
 
     OrderDTO createAnOrderForAnAccount(OrderDTO dto, String accountId);
 
+    OrderDTO retrieveAnOrderByItsId(String accountId, String orderId);
+
 }

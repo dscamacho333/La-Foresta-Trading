@@ -130,4 +130,29 @@ public class AlpacaServiceImplTest {
 
         assertThrows(OrderException.class, () -> alpacaService.createAnOrderForAnAccount(orderDTO, accountId));
     }
+
+    @Test
+    public void testRetrieveAnOrderByItsIdSuccess() {
+        String accountId = "acc123";
+        String orderId = "order456";
+        OrderDTO mockOrder = new OrderDTO();
+        mockOrder.setSymbol("AAPL");
+        mockOrder.setStatus("filled");
+
+        ResponseEntity<OrderDTO> responseEntity = new ResponseEntity<>(mockOrder, HttpStatus.OK);
+
+        when(restTemplate.exchange(
+                eq("https://broker-api.sandbox.alpaca.markets/v1/trading/accounts/" + accountId + "/orders/" + orderId),
+                eq(HttpMethod.GET),
+                any(HttpEntity.class),
+                eq(OrderDTO.class)
+        )).thenReturn(responseEntity);
+
+        OrderDTO result = alpacaService.retrieveAnOrderByItsId(accountId, orderId);
+
+        assertNotNull(result);
+        assertEquals("AAPL", result.getSymbol());
+        assertEquals("filled", result.getStatus());
+    }
+
 }
