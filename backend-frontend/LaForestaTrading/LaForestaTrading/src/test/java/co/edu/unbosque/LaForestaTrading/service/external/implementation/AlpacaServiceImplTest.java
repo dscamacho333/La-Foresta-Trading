@@ -1,7 +1,9 @@
 package co.edu.unbosque.LaForestaTrading.service.external.implementation;
 
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.AccountDTO;
+import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.OrderDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.AccountResponseDTO;
+import co.edu.unbosque.LaForestaTrading.exception.OrderException;
 import co.edu.unbosque.LaForestaTrading.exception.UserException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,9 +32,6 @@ public class AlpacaServiceImplTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         alpacaService = new AlpacaServiceImpl(restTemplate);
-
-        // Simula la inyección de valores @Value
-        alpacaService.getClass().getDeclaredFields();
         setPrivateField(alpacaService, "apiKey", "test-key");
         setPrivateField(alpacaService, "apiSecret", "test-secret");
     }
@@ -75,9 +74,7 @@ public class AlpacaServiceImplTest {
                 eq(AccountResponseDTO.class)
         )).thenThrow(new RestClientException("Conflict"));
 
-        assertThrows(UserException.class, () -> {
-            alpacaService.createAccount(new AccountDTO());
-        });
+        assertThrows(UserException.class, () -> alpacaService.createAccount(new AccountDTO()));
     }
 
     @Test
@@ -97,5 +94,40 @@ public class AlpacaServiceImplTest {
 
         assertNotNull(result);
         assertEquals(mockResponse, result);
+    }
+
+    @Test
+    public void testCreateAnOrderForAnAccountSuccess() {
+        String accountId = "account123";
+        OrderDTO orderDTO = new OrderDTO();
+        OrderDTO responseDTO = new OrderDTO();
+        ResponseEntity<OrderDTO> responseEntity = new ResponseEntity<>(responseDTO, HttpStatus.OK);
+
+        when(restTemplate.exchange(
+                eq("https://broker-api.sandbox.alpaca.markets/v1/trading/accounts/" + accountId + "/orders"),
+                eq(HttpMethod.POST),
+                any(HttpEntity.class),
+                eq(OrderDTO.class)
+        )).thenReturn(responseEntity);
+
+        OrderDTO result = alpacaService.createAnOrderForAnAccount(orderDTO, accountId);
+
+        assertNotNull(result);
+        assertEquals(responseDTO, result);
+    }
+
+    @Test
+    public void testCreateAnOrderForAnAccountThrowsOrderException() {
+        String accountId = "account123";
+        OrderDTO orderDTO = new OrderDTO();
+
+        when(restTemplate.exchange(
+                anyString(),
+                eq(HttpMethod.POST),
+                any(HttpEntity.class),
+                eq(OrderDTO.class)
+        )).thenThrow(new RestClientException("Bad Request"));
+
+        assertThrows(OrderException.class, () -> alpacaService.createAnOrderForAnAccount(orderDTO, accountId));
     }
 }

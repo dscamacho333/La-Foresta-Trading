@@ -1,11 +1,14 @@
 package co.edu.unbosque.LaForestaTrading.service.internal.interfaces;
 
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.AccountDTO;
+import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.OrderDTO;
 
 public interface ITradingService {
 
     boolean register(AccountDTO dto, String password);
 
     void verificarCuentasPendientes();
+
+    OrderDTO executeOrder(OrderDTO orderDTO, Long investorId);
 
 }
