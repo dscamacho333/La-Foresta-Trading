@@ -11,4 +11,6 @@ public interface IOrderRepository extends CrudRepository<Order, Long> {
 
     List<Order> findByInvestorId(Long investorId);
 
+    List<Order> findByStatusNotIgnoreCase(String status);
+
 }

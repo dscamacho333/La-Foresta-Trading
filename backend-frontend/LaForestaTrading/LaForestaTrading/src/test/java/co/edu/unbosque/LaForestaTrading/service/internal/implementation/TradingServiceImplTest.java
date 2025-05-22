@@ -147,7 +147,7 @@ public class TradingServiceImplTest {
     }
 
     @Test
-    public void testListOrdersByInvestorId_ReturnsMappedDTOs() {
+    public void testListOrdersByInvestorIdReturnsMappedDTOs() {
         Long investorId = 1L;
 
         Order order = new Order();
@@ -166,7 +166,7 @@ public class TradingServiceImplTest {
     }
 
     @Test
-    public void testListOrdersByInvestorId_ReturnsEmptyListWhenNoneFound() {
+    public void testListOrdersByInvestorIdReturnsEmptyListWhenNoneFound() {
         Long investorId = 2L;
 
         when(orderRepo.findByInvestorId(investorId)).thenReturn(Collections.emptyList());
@@ -175,6 +175,38 @@ public class TradingServiceImplTest {
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testVerificarOrdenesPendientes_UpdatesFilledOrders() {
+        // Arrange
+        Investor investor = new Investor();
+        investor.setAlpacaId("acc123");
+
+        Order order = new Order();
+        order.setAlpacaOrderId("ord001");
+        order.setStatus("pending");
+        order.setInvestor(investor);
+
+        OrderDTO updated = new OrderDTO();
+        updated.setStatus("filled");
+        updated.setFilledAt("2025-05-22T08:00:00Z");
+        updated.setFilledQty("1");
+        updated.setFilledAvgPrice("189.25");
+
+        when(orderRepo.findByStatusNotIgnoreCase("filled")).thenReturn(List.of(order));
+        when(alpacaService.retrieveAnOrderByItsId("acc123", "ord001")).thenReturn(updated);
+
+        // Act
+        service.verificarOrdenesPendientes();
+
+        // Assert
+        assertEquals("filled", order.getStatus());
+        assertEquals("1", order.getFilledQty());
+        assertEquals("189.25", order.getFilledAvgPrice());
+        assertEquals("2025-05-22T08:00:00Z", order.getFilledAt());
+
+        verify(orderRepo).save(order);
     }
 
 

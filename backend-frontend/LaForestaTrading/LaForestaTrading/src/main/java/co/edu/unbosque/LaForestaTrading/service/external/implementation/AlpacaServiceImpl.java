@@ -99,4 +99,23 @@ public class AlpacaServiceImpl implements IAlpacaService {
         }
     }
 
+    @Override
+    public OrderDTO retrieveAnOrderByItsId(String accountId, String orderId) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth(apiKey, apiSecret);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        ResponseEntity<OrderDTO> response = restTemplate
+                .exchange(
+                        baseUrl + "/trading/accounts/" + accountId + "/orders/" + orderId,
+                        HttpMethod.GET,
+                        request,
+                        OrderDTO.class
+                );
+        return response
+                .getBody();
+    }
+
 }

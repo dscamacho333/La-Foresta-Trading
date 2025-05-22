@@ -127,5 +127,34 @@ public class TradingServiceImpl implements ITradingService {
                 .collect(Collectors.toList());
     }
 
+    @Scheduled(fixedDelay = 600000)
+    @Override
+    public void verificarOrdenesPendientes() {
+        List<Order> pendientes = orderRepo.findByStatusNotIgnoreCase("filled");
+
+        for (Order ordenLocal : pendientes) {
+            try {
+                Investor investor = ordenLocal.getInvestor();
+                String accountId = investor.getAlpacaId();
+                String orderId = ordenLocal.getAlpacaOrderId();
+
+                OrderDTO actualizada = alpacaService.retrieveAnOrderByItsId(accountId, orderId);
+
+                if ("filled".equalsIgnoreCase(actualizada.getStatus())) {
+
+                    ordenLocal.setStatus(actualizada.getStatus());
+                    ordenLocal.setFilledAt(actualizada.getFilledAt());
+                    ordenLocal.setFilledQty(actualizada.getFilledQty());
+                    ordenLocal.setFilledAvgPrice(actualizada.getFilledAvgPrice());
+
+                    orderRepo.save(ordenLocal);
+                }
+
+            } catch (Exception e) {
+                System.err.println("Error al verificar orden " + ordenLocal.getAlpacaOrderId() + ": " + e.getMessage());
+            }
+        }
+    }
+
 
 }
