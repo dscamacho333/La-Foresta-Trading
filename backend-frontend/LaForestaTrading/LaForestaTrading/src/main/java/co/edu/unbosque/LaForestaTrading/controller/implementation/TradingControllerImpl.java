@@ -2,6 +2,7 @@ package co.edu.unbosque.LaForestaTrading.controller.implementation;
 
 import co.edu.unbosque.LaForestaTrading.controller.interfaces.ITradingController;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.OrderDTO;
+import co.edu.unbosque.LaForestaTrading.entity.Investor;
 import co.edu.unbosque.LaForestaTrading.entity.User;
 import co.edu.unbosque.LaForestaTrading.exception.OrderException;
 import co.edu.unbosque.LaForestaTrading.service.internal.interfaces.ITradingService;
@@ -21,6 +22,9 @@ public class TradingControllerImpl implements ITradingController {
 
     @Override
     public String showTradingPage(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (Investor) auth.getPrincipal();
+        model.addAttribute("buyingPower", tradingService.getInvestorBuyingPower(user.getId()));
         model.addAttribute("orderDTO", new OrderDTO());
         return "trading";
     }
@@ -33,8 +37,8 @@ public class TradingControllerImpl implements ITradingController {
             User user = (User) auth.getPrincipal();
 
             tradingService.executeOrder(orderDTO, user.getId());
-
             model.addAttribute("success", "¡Orden ejecutada correctamente!");
+            model.addAttribute("buyingPower", tradingService.getInvestorBuyingPower(user.getId()));
         } catch (OrderException e) {
             model.addAttribute("error", e.getMessage());
         }

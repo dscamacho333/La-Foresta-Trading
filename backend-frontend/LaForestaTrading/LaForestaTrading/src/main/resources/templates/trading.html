@@ -15,9 +15,10 @@
         </a>
         <span class="nav-title">Panel de Usuario</span>
     </div>
-    <div class="nav-right">
-        <a th:href="@{/logout}" class="btn btn-logout">Cerrar sesión</a>
+    <div class="buying-power">
+        Poder de compra: <span th:text="${buyingPower} + ' USD'"></span>
     </div>
+
 </nav>
 
 <!-- Formulario de orden -->
