@@ -146,6 +146,38 @@ public class TradingServiceImplTest {
                 service.executeOrder(new OrderDTO(), 999L));
     }
 
+    @Test
+    public void testListOrdersByInvestorId_ReturnsMappedDTOs() {
+        Long investorId = 1L;
+
+        Order order = new Order();
+        order.setSymbol("AAPL");
+        order.setQty("10");
+        order.setType("market");
+
+        when(orderRepo.findByInvestorId(investorId)).thenReturn(List.of(order));
+
+        List<OrderDTO> result = service.listOrderdByInvestorId(investorId);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("AAPL", result.get(0).getSymbol());
+        assertEquals("10", result.get(0).getQty());
+    }
+
+    @Test
+    public void testListOrdersByInvestorId_ReturnsEmptyListWhenNoneFound() {
+        Long investorId = 2L;
+
+        when(orderRepo.findByInvestorId(investorId)).thenReturn(Collections.emptyList());
+
+        List<OrderDTO> result = service.listOrderdByInvestorId(investorId);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+
     // Utils
     private AccountDTO buildDummyAccountDTO() {
         ContactDTO contact = new ContactDTO("mail@test.com", "123", List.of("Street"), "City", "State", "12345");

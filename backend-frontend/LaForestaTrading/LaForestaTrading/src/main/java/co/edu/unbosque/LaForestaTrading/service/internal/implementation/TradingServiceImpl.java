@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TradingServiceImpl implements ITradingService {
@@ -115,6 +116,15 @@ public class TradingServiceImpl implements ITradingService {
         catch(OrderException e){
             throw new OrderException(e.getMessage());
         }
+    }
+
+    @Override
+    public List<OrderDTO> listOrderdByInvestorId(Long investorId) {
+        return (List<OrderDTO>) orderRepo
+                .findByInvestorId(investorId)
+                .stream()
+                .map(order -> modelMapper.map(order, OrderDTO.class))
+                .collect(Collectors.toList());
     }
 
 

@@ -1,0 +1,161 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f6f8fa;
+    color: #333;
+}
+
+/* Navbar */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo img {
+    height: 36px;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #333;
+}
+
+.nav-right .btn-logout {
+    background-color: #ff6600;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.nav-right .btn-logout:hover {
+    background-color: #e65500;
+}
+
+/* Contenedor principal */
+.orders-container {
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Grid con dos tarjetas por fila */
+.order-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+/* Tarjeta individual */
+.order-card {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-height: 260px;
+    transition: transform 0.2s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Estado */
+.order-status {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.4rem;
+}
+
+.status-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.status-badge.filled {
+    background-color: #28a745;
+}
+
+.status-badge.pending {
+    background-color: #ff9900;
+}
+
+/* Fila de información */
+.order-detail-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #eee;
+    padding: 0.25rem 0;
+}
+
+.order-detail-row span:first-child {
+    color: #666;
+    font-weight: 600;
+}
+
+.order-detail-row span:last-child {
+    color: #222;
+    text-transform: uppercase;
+}
+
+/* Responsive para móvil */
+@media screen and (max-width: 768px) {
+    .order-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.empty-message {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #888;
+    padding: 4rem 1rem;
+    font-style: italic;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+}
+.empty-message {
+    display: block;
+    text-align: center;
+    font-size: 1.1rem;
+    color: #666;
+    padding: 4rem 2rem;
+    margin-top: 2rem;
+    font-style: italic;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.empty-message:hover {
+    background-color: #fdf4ea;
+    transform: scale(1.02);
+    color: #ff6600;
+}
+
