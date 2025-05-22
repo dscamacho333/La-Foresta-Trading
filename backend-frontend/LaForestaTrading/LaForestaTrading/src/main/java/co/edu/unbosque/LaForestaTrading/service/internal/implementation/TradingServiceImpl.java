@@ -1,12 +1,16 @@
 package co.edu.unbosque.LaForestaTrading.service.internal.implementation;
 
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.AccountDTO;
+import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.OrderDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.AccountResponseDTO;
 import co.edu.unbosque.LaForestaTrading.entity.Investor;
+import co.edu.unbosque.LaForestaTrading.entity.Order;
 import co.edu.unbosque.LaForestaTrading.entity.enums.UserStatus;
 import co.edu.unbosque.LaForestaTrading.entity.enums.UserType;
+import co.edu.unbosque.LaForestaTrading.exception.OrderException;
 import co.edu.unbosque.LaForestaTrading.exception.UserException;
 import co.edu.unbosque.LaForestaTrading.mapper.InvestorMapper;
+import co.edu.unbosque.LaForestaTrading.repository.IOrderRepository;
 import co.edu.unbosque.LaForestaTrading.repository.IUserRepository;
 import co.edu.unbosque.LaForestaTrading.service.external.interfaces.IAlpacaService;
 import co.edu.unbosque.LaForestaTrading.service.internal.interfaces.ITradingService;
@@ -22,14 +26,16 @@ import java.util.List;
 @Service
 public class TradingServiceImpl implements ITradingService {
 
-    private final IUserRepository repo;
+    private final IUserRepository userRepo;
+    private final IOrderRepository orderRepo;
     private final ModelMapper modelMapper;
     private final IAlpacaService alpacaService;
     private final PasswordEncoder passwordEncoder;
 
 
-    public TradingServiceImpl(IUserRepository repo, ModelMapper modelMapper, IAlpacaService alpacaService, PasswordEncoder passwordEncoder) {
-        this.repo = repo;
+    public TradingServiceImpl(IUserRepository repo, IOrderRepository orderRepo, ModelMapper modelMapper, IAlpacaService alpacaService, PasswordEncoder passwordEncoder) {
+        this.userRepo = repo;
+        this.orderRepo = orderRepo;
         this.modelMapper = modelMapper;
         this.alpacaService = alpacaService;
         this.passwordEncoder = passwordEncoder;
@@ -40,7 +46,7 @@ public class TradingServiceImpl implements ITradingService {
 
         try {
 
-            Investor investor = repo.findByTaxId(dto.getIdentityDTO().getTaxId());
+            Investor investor = userRepo.findByTaxId(dto.getIdentityDTO().getTaxId());
 
             if(investor != null){
                 throw new UserException("Número de identificación duplicado");
@@ -62,7 +68,7 @@ public class TradingServiceImpl implements ITradingService {
             investor.setUserType(UserType.INVESTOR);
             investor.setRegistrationDate(LocalDateTime.now());
 
-            repo.save(investor);
+            userRepo.save(investor);
 
         } catch (DataIntegrityViolationException e) {
             throw new UserException("Los siguientes campos deben ser unicos: Correo electronico y número de identificación");
@@ -76,19 +82,40 @@ public class TradingServiceImpl implements ITradingService {
     @Scheduled(fixedDelay = 60000)
     @Override
     public void verificarCuentasPendientes() {
-        List<Investor> pendientes = repo.findByAlpacaStatus("SUBMITTED");
+        List<Investor> pendientes = userRepo.findByAlpacaStatus("SUBMITTED");
 
         for (Investor investor : pendientes) {
             try {
                 AccountResponseDTO response = alpacaService.getAnAccountById(investor.getAlpacaId());
                 if ("ACTIVE".equalsIgnoreCase(response.getStatus())) {
                     investor = InvestorMapper.fromAccountResponseDTO(response,investor, investor.getPasswordHash(), investor.getTaxId());
-                    repo.save(investor);
+                    userRepo.save(investor);
                 }
             } catch (Exception e) {
                 System.err.println("Error al verificar cuenta de " + investor.getEmail() + ": " + e.getMessage());
             }
         }
     }
+
+    @Override
+    public OrderDTO executeOrder(OrderDTO orderDTO, Long investorId) {
+        try{
+            Investor investor = (Investor) userRepo.findById(investorId).orElseThrow(() -> new OrderException("Error al crear la orden!"));
+
+            OrderDTO response =  alpacaService.createAnOrderForAnAccount(orderDTO, investor.getAlpacaId());
+
+            Order order = modelMapper.map(response, Order.class);
+            order.setInvestor(investor);
+            order.setLocalCreationDate(LocalDateTime.now());
+
+            order = orderRepo.save(order);
+
+            return modelMapper.map(order, OrderDTO.class);
+        }
+        catch(OrderException e){
+            throw new OrderException(e.getMessage());
+        }
+    }
+
 
 }

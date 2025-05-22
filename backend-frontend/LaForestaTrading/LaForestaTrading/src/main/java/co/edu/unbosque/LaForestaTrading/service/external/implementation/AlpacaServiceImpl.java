@@ -1,13 +1,16 @@
 package co.edu.unbosque.LaForestaTrading.service.external.implementation;
 
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.AccountDTO;
+import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.OrderDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.AccountResponseDTO;
+import co.edu.unbosque.LaForestaTrading.exception.OrderException;
 import co.edu.unbosque.LaForestaTrading.exception.UserException;
 import co.edu.unbosque.LaForestaTrading.service.external.interfaces.IAlpacaService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.*;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 public class AlpacaServiceImpl implements IAlpacaService {
@@ -69,6 +72,31 @@ public class AlpacaServiceImpl implements IAlpacaService {
                 );
         return response
                 .getBody();
+    }
+
+    @Override
+    public OrderDTO createAnOrderForAnAccount(OrderDTO dto, String accountId) {
+        try{
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBasicAuth(apiKey, apiSecret);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<OrderDTO> request = new HttpEntity<>(dto, headers);
+
+            ResponseEntity<OrderDTO> response = restTemplate
+                    .exchange(
+                            baseUrl + "/trading/accounts/" + accountId + "/orders",
+                            HttpMethod.POST,
+                            request,
+                            OrderDTO.class
+                    );
+
+            return response
+                    .getBody();
+        }
+        catch (RestClientException e) {
+            throw new OrderException("Error al crear una orden, verifique que el simbolo es válido!");
+        }
     }
 
 }

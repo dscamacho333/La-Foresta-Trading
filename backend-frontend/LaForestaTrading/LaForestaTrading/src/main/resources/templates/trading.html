@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Orden de Trading</title>
+    <link rel="stylesheet" href="/css/trading.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="top-nav">
+    <div class="nav-left">
+        <a th:href="@{/dashboard}" class="logo">
+            <img src="/img/logo/logoLaForesta.png" alt="Logo La Foresta">
+        </a>
+        <span class="nav-title">Panel de Usuario</span>
+    </div>
+    <div class="nav-right">
+        <a th:href="@{/logout}" class="btn btn-logout">Cerrar sesión</a>
+    </div>
+</nav>
+
+<!-- Formulario de orden -->
+<div class="order-container">
+
+    <div th:if="${success}" class="login-message success" th:text="${success}"></div>
+    <div th:if="${error}" class="login-message error" th:text="${error}"></div>
+
+    <h2>Ejecutar Orden</h2>
+
+    <form th:action="@{/trading/order}" method="post" th:object="${orderDTO}" class="order-form">
+
+        <!-- Campo SIDE -->
+        <label for="side">Acción</label>
+        <select id="side" th:field="*{side}">
+            <option value="buy">Buy</option>
+            <option value="sell">Sell</option>
+        </select>
+
+        <!-- Campo SYMBOL -->
+        <label for="symbol">Símbolo</label>
+        <input type="text" id="symbol" th:field="*{symbol}" placeholder="Ej: AAPL" required>
+
+        <!-- Campo QTY -->
+        <label for="qty">Cantidad</label>
+        <input type="number" id="qty" th:field="*{qty}" min="1" value="1" required>
+
+        <!-- Campo TYPE (visual + hidden) -->
+        <label for="type">Tipo de Orden</label>
+        <input type="text" id="type" value="Market" disabled>
+        <input type="hidden" name="type" th:value="market"/>
+
+        <!-- Campo TIME IN FORCE (visual + hidden) -->
+        <label for="timeInForce">Time in Force</label>
+        <input type="text" id="timeInForce" value="DAY" disabled>
+        <input type="hidden" name="timeInForce" th:value="day"/>
+
+        <button type="submit" class="order-btn">Ejecutar Orden</button>
+    </form>
+
+</div>
+
+</body>
+</html>

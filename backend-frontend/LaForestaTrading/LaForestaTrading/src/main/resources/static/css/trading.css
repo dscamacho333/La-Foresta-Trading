@@ -1,0 +1,157 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f6f8fa;
+    color: #333;
+}
+
+/* Navbar */
+.top-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 0.8rem 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo img {
+    height: 32px;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #444;
+}
+
+.nav-right .btn-logout {
+    background-color: #ff6600;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.nav-right .btn-logout:hover {
+    background-color: #e65500;
+}
+
+/* Orden container */
+.order-container {
+    background-color: #ffffff;
+    padding: 2rem 2.5rem;
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 450px;
+    margin: 3rem auto;
+    text-align: center;
+}
+
+/* Título */
+.order-container h2 {
+    margin-bottom: 1.5rem;
+    color: #ff6600;
+}
+
+/* Formulario */
+.order-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: left;
+}
+
+.order-form label {
+    font-weight: bold;
+    color: #333;
+}
+
+.order-form input,
+.order-form select {
+    padding: 0.6rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.order-form input[disabled] {
+    background-color: #f5f5f5;
+    color: #666;
+    font-style: italic;
+    cursor: not-allowed;
+    border: 1px solid #ccc;
+}
+
+/* Línea de texto informativo */
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    color: #333;
+    margin-top: 0.3rem;
+}
+
+/* Botón */
+.order-btn {
+    margin-top: 1rem;
+    background-color: #ff6600;
+    color: white;
+    padding: 0.7rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.order-btn:hover {
+    background-color: #e65500;
+}
+
+/* Mensajes de estado */
+.login-message {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.login-message.success {
+    background-color: #e6ffe6;
+    color: #006600;
+    border: 1px solid #009900;
+}
+
+.login-message.error {
+    background-color: #ffe6e6;
+    color: #cc0000;
+    border: 1px solid #cc0000;
+}
+
+/* (Visualmente bonito y coherente con campos normales) */
+.order-form input[type="text"][disabled],
+.order-form input[type="number"][disabled] {
+    background-color: #f5f5f5;
+    color: #666;
+}
