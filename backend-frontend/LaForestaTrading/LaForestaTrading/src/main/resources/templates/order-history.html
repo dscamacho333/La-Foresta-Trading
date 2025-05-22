@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Órdenes</title>
+    <link rel="stylesheet" href="/css/order-history.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="top-nav">
+    <div class="nav-left">
+        <a th:href="@{/dashboard}" class="logo">
+            <img src="/img/logo/logoLaForesta.png" alt="Logo La Foresta">
+        </a>
+        <span class="nav-title">Historial de Órdenes</span>
+    </div>
+    <div class="nav-right">
+        <a th:href="@{/logout}" class="btn btn-logout">Cerrar sesión</a>
+    </div>
+</nav>
+
+<!-- Contenedor de órdenes -->
+<div class="orders-container">
+
+    <!-- Si no hay órdenes -->
+    <a th:if="${#lists.isEmpty(orders)}" th:href="@{/trading}" class="empty-message">
+        No tienes ninguna orden aún, empecemos a hacer trading juntos...
+    </a>
+
+    <!-- Si hay órdenes -->
+    <div class="order-grid" th:if="${not #lists.isEmpty(orders)}">
+        <div class="order-card" th:each="order : ${orders}">
+            <div class="order-status">
+                <span th:if="${order.status} == 'filled'" class="status-badge filled">COMPLETADA</span>
+                <span th:if="${order.status} != 'filled'" class="status-badge pending">EN ESPERA</span>
+            </div>
+
+            <div class="order-detail-row"><span>Acción:</span><span th:text="${order.side.toUpperCase()}"></span></div>
+            <div class="order-detail-row"><span>Símbolo:</span><span th:text="${order.symbol.toUpperCase()}"></span></div>
+            <div class="order-detail-row"><span>Cantidad:</span><span th:text="${order.filledQty}"></span></div>
+            <div class="order-detail-row"><span>Tipo de orden:</span><span th:text="${order.type.toUpperCase()}"></span></div>
+            <div class="order-detail-row"><span>Time in Force:</span><span th:text="${order.timeInForce.toUpperCase()}"></span></div>
+            <div class="order-detail-row"><span>Precio:</span><span th:text="${order.filledAvgPrice != null ? order.filledAvgPrice : 'N/A'}"></span></div>
+            <div class="order-detail-row"><span>Ejecutada:</span><span th:text="${#temporals.format(order.localCreationDate, 'yyyy-MM-dd HH:mm')}"></span></div>
+            <div class="order-detail-row"><span>Aceptada:</span>
+                <span th:text="${order.status == 'filled'} ? ${order.filledAt != null ? order.filledAt : 'N/A'} : 'N/A'"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
