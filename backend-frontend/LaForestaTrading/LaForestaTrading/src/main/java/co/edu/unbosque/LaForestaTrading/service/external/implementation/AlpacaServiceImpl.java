@@ -3,6 +3,7 @@ package co.edu.unbosque.LaForestaTrading.service.external.implementation;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.AccountDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.OrderDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.AccountResponseDTO;
+import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.AccountTradingDetailDTO;
 import co.edu.unbosque.LaForestaTrading.exception.OrderException;
 import co.edu.unbosque.LaForestaTrading.exception.UserException;
 import co.edu.unbosque.LaForestaTrading.service.external.interfaces.IAlpacaService;
@@ -95,7 +96,7 @@ public class AlpacaServiceImpl implements IAlpacaService {
                     .getBody();
         }
         catch (RestClientException e) {
-            throw new OrderException("Error al crear una orden, verifique que el simbolo es válido!");
+            throw new OrderException("Error al crear una orden, verifique que el simbolo es válido y que usted tenga fondos suficientes!");
         }
     }
 
@@ -113,6 +114,26 @@ public class AlpacaServiceImpl implements IAlpacaService {
                         HttpMethod.GET,
                         request,
                         OrderDTO.class
+                );
+        return response
+                .getBody();
+    }
+
+    @Override
+    public AccountTradingDetailDTO retriieveTradingDetailsForAnAccount(String accountId) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth(apiKey, apiSecret);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        ResponseEntity<AccountTradingDetailDTO> response = restTemplate
+                .exchange(
+                        baseUrl + "/trading/accounts/" + accountId + "/account",
+                        HttpMethod.GET,
+                        request,
+                        AccountTradingDetailDTO.class
                 );
         return response
                 .getBody();

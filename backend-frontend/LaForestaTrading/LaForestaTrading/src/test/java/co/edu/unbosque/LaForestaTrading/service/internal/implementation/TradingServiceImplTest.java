@@ -2,6 +2,7 @@ package co.edu.unbosque.LaForestaTrading.service.internal.implementation;
 
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.*;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.AccountResponseDTO;
+import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.AccountTradingDetailDTO;
 import co.edu.unbosque.LaForestaTrading.entity.Investor;
 import co.edu.unbosque.LaForestaTrading.entity.Order;
 import co.edu.unbosque.LaForestaTrading.exception.OrderException;
@@ -15,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -182,6 +184,7 @@ public class TradingServiceImplTest {
         // Arrange
         Investor investor = new Investor();
         investor.setAlpacaId("acc123");
+        investor.setBuyingPower(new BigDecimal("0")); // inicial
 
         Order order = new Order();
         order.setAlpacaOrderId("ord001");
@@ -194,8 +197,12 @@ public class TradingServiceImplTest {
         updated.setFilledQty("1");
         updated.setFilledAvgPrice("189.25");
 
+        AccountTradingDetailDTO detailDTO = new AccountTradingDetailDTO();
+        detailDTO.setBuyingPower("13419.14");
+
         when(orderRepo.findByStatusNotIgnoreCase("filled")).thenReturn(List.of(order));
         when(alpacaService.retrieveAnOrderByItsId("acc123", "ord001")).thenReturn(updated);
+        when(alpacaService.retriieveTradingDetailsForAnAccount("acc123")).thenReturn(detailDTO);
 
         // Act
         service.verificarOrdenesPendientes();
@@ -205,8 +212,40 @@ public class TradingServiceImplTest {
         assertEquals("1", order.getFilledQty());
         assertEquals("189.25", order.getFilledAvgPrice());
         assertEquals("2025-05-22T08:00:00Z", order.getFilledAt());
+        assertEquals(new BigDecimal("13419.14"), investor.getBuyingPower());
 
         verify(orderRepo).save(order);
+        verify(userRepo).save(investor);
+    }
+
+
+    @Test
+    public void testGetInvestorBuyingPowerReturnsCorrectValue() {
+        Long userId = 123L;
+        Investor investor = new Investor();
+        BigDecimal expectedBuyingPower = new BigDecimal("9876.54");
+        investor.setBuyingPower(expectedBuyingPower);
+
+        when(userRepo.findById(userId)).thenReturn(Optional.of(investor));
+
+        BigDecimal result = service.getInvestorBuyingPower(userId);
+
+        assertEquals(expectedBuyingPower, result);
+        verify(userRepo).findById(userId);
+    }
+
+    @Test
+    public void testGetInvestorBuyingPowerThrowsExceptionIfInvestorNotFound() {
+        Long userId = 999L;
+
+        when(userRepo.findById(userId)).thenReturn(Optional.empty());
+
+        UserException ex = assertThrows(UserException.class, () -> {
+            service.getInvestorBuyingPower(userId);
+        });
+
+        assertEquals("No hay plata!", ex.getMessage());
+        verify(userRepo).findById(userId);
     }
 
 

@@ -3,6 +3,7 @@ package co.edu.unbosque.LaForestaTrading.service.external.interfaces;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.AccountDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.OrderDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.AccountResponseDTO;
+import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.AccountTradingDetailDTO;
 
 public interface IAlpacaService {
 
@@ -13,5 +14,7 @@ public interface IAlpacaService {
     OrderDTO createAnOrderForAnAccount(OrderDTO dto, String accountId);
 
     OrderDTO retrieveAnOrderByItsId(String accountId, String orderId);
+
+    AccountTradingDetailDTO retriieveTradingDetailsForAnAccount(String accountId);
 
 }

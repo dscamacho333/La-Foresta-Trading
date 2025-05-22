@@ -3,6 +3,7 @@ package co.edu.unbosque.LaForestaTrading.service.internal.implementation;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.AccountDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.OrderDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.AccountResponseDTO;
+import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.AccountTradingDetailDTO;
 import co.edu.unbosque.LaForestaTrading.entity.Investor;
 import co.edu.unbosque.LaForestaTrading.entity.Order;
 import co.edu.unbosque.LaForestaTrading.entity.enums.UserStatus;
@@ -20,6 +21,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -120,14 +122,14 @@ public class TradingServiceImpl implements ITradingService {
 
     @Override
     public List<OrderDTO> listOrderdByInvestorId(Long investorId) {
-        return (List<OrderDTO>) orderRepo
+        return orderRepo
                 .findByInvestorId(investorId)
                 .stream()
                 .map(order -> modelMapper.map(order, OrderDTO.class))
                 .collect(Collectors.toList());
     }
 
-    @Scheduled(fixedDelay = 600000)
+    @Scheduled(fixedDelay = 60000)
     @Override
     public void verificarOrdenesPendientes() {
         List<Order> pendientes = orderRepo.findByStatusNotIgnoreCase("filled");
@@ -147,13 +149,29 @@ public class TradingServiceImpl implements ITradingService {
                     ordenLocal.setFilledQty(actualizada.getFilledQty());
                     ordenLocal.setFilledAvgPrice(actualizada.getFilledAvgPrice());
 
+                    AccountTradingDetailDTO details = alpacaService.retriieveTradingDetailsForAnAccount(investor.getAlpacaId());
+
+                    System.out.println("details = " + details);
+                    
+                    BigDecimal updatedBuyingPower = new BigDecimal(details.getBuyingPower());
+
+                    investor.setBuyingPower(updatedBuyingPower);
+
                     orderRepo.save(ordenLocal);
+                    userRepo.save(investor);
                 }
 
             } catch (Exception e) {
                 System.err.println("Error al verificar orden " + ordenLocal.getAlpacaOrderId() + ": " + e.getMessage());
+                e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public BigDecimal getInvestorBuyingPower(Long userId) {
+        Investor investor = (Investor) userRepo.findById(userId).orElseThrow(() -> new UserException("No hay plata!"));
+        return investor.getBuyingPower();
     }
 
 
