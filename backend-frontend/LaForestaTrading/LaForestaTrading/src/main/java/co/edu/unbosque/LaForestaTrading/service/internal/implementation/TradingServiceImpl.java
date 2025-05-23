@@ -156,14 +156,14 @@ public class TradingServiceImpl implements ITradingService {
 
                     AccountTradingDetailDTO details = alpacaService.retriieveTradingDetailsForAnAccount(investor.getAlpacaId());
 
-                    System.out.println("details = " + details);
-                    
                     BigDecimal updatedBuyingPower = new BigDecimal(details.getBuyingPower());
 
                     investor.setBuyingPower(updatedBuyingPower);
 
                     orderRepo.save(ordenLocal);
                     userRepo.save(investor);
+
+                    emailService.sendConfirmationForExcutedOrder(ordenLocal, investor);
                 }
 
             } catch (Exception e) {

@@ -51,6 +51,29 @@ public class EmailServiceImpl implements IEmailService {
         sendEmail(to, subject, body);
     }
 
+    @Override
+    public void sendConfirmationForExcutedOrder(Order order, Investor investor) {
+        if (order == null || investor == null || investor.getEmail() == null) {
+            throw new EmailException("Error al enviar el correo!");
+        }
+
+        String to = investor.getEmail();
+        String subject = "Tu orden ha sido procesada exitosamente!";
+
+        String body = "Hola, nos alegramos de que nos escojas a nosotros para realizar operaciones de trading.\n\n"
+                + "Aquí tienes un resumen de tu orden completada:\n\n"
+                + "🆔 Estado: " + safe(order.getStatus()) + "\n"
+                + "📈 Acción: " + ("buy".equalsIgnoreCase(order.getSide()) ? "Compra" : "Venta") + "\n"
+                + "💼 Tipo: " + safe(order.getType()) + "\n"
+                + "🔖 Símbolo: " + safe(order.getSymbol()) + "\n"
+                + "💰 Precio estimado: " + safe(order.getFilledAvgPrice()) + " USD\n"
+                + "🕓 Fecha de ejecución local: " + (order.getLocalCreationDate() != null ? order.getLocalCreationDate().toString() : "Desconocida") + "\n\n"
+                + "Gracias por confiar en La Foresta Trading.\n"
+                + "Este correo es automático, no responda.";
+
+        sendEmail(to, subject, body);
+    }
+
     private String safe(String value) {
         return value != null ? value : "N/A";
     }
