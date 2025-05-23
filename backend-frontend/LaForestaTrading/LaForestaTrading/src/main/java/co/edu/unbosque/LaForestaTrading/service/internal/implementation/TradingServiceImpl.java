@@ -14,6 +14,7 @@ import co.edu.unbosque.LaForestaTrading.mapper.InvestorMapper;
 import co.edu.unbosque.LaForestaTrading.repository.IOrderRepository;
 import co.edu.unbosque.LaForestaTrading.repository.IUserRepository;
 import co.edu.unbosque.LaForestaTrading.service.external.interfaces.IAlpacaService;
+import co.edu.unbosque.LaForestaTrading.service.internal.interfaces.IEmailService;
 import co.edu.unbosque.LaForestaTrading.service.internal.interfaces.ITradingService;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -33,14 +34,16 @@ public class TradingServiceImpl implements ITradingService {
     private final IOrderRepository orderRepo;
     private final ModelMapper modelMapper;
     private final IAlpacaService alpacaService;
+    private final IEmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
 
-    public TradingServiceImpl(IUserRepository repo, IOrderRepository orderRepo, ModelMapper modelMapper, IAlpacaService alpacaService, PasswordEncoder passwordEncoder) {
+    public TradingServiceImpl(IUserRepository repo, IOrderRepository orderRepo, ModelMapper modelMapper, IAlpacaService alpacaService, IEmailService emailService, PasswordEncoder passwordEncoder) {
         this.userRepo = repo;
         this.orderRepo = orderRepo;
         this.modelMapper = modelMapper;
         this.alpacaService = alpacaService;
+        this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -112,6 +115,8 @@ public class TradingServiceImpl implements ITradingService {
             order.setLocalCreationDate(LocalDateTime.now());
 
             order = orderRepo.save(order);
+
+            emailService.sendConfirmationEmail(order, investor);
 
             return modelMapper.map(order, OrderDTO.class);
         }
