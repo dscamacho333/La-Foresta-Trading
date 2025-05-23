@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial del Portafolio</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" th:href="@{/css/portfolio-chart.css}">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="top-nav">
+    <div class="nav-left">
+        <a th:href="@{/dashboard}" class="logo">
+            <img src="/img/logo/logoLaForesta.png" alt="Logo La Foresta">
+        </a>
+        <span class="nav-title">Portafolio</span>
+    </div>
+    <div class="nav-right">
+        <a th:href="@{/logout}" class="btn btn-logout">Cerrar sesión</a>
+    </div>
+</nav>
+
+<!-- Sección de Gráfica -->
+<div class="chart-section">
+    <h2>Historial del Portafolio</h2>
+    <div class="chart-container">
+        <canvas id="portfolioChart"></canvas>
+    </div>
+</div>
+
+<!-- Sección de Posiciones -->
+<div class="positions-section">
+    <h3>Posiciones Actuales</h3>
+    <div class="positions-grid">
+        <div class="position-card" th:each="position : ${positions}">
+            <h4 th:text="${position.symbol}">AAPL</h4>
+            <p><strong>Cantidad:</strong> <span th:text="${position.quantity}">5</span></p>
+        </div>
+    </div>
+</div>
+
+<!-- Script de Chart.js -->
+<script th:inline="javascript">
+    const timestamps = [[${history.timestamp}]];
+    const equity = [[${history.equity}]];
+
+    const labels = timestamps.map(ts =>
+        new Date(ts * 1000).toLocaleDateString()
+    );
+
+    const ctx = document.getElementById('portfolioChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Equity Value',
+                data: equity,
+                borderColor: 'rgba(255, 102, 0, 1)',
+                backgroundColor: 'rgba(255, 102, 0, 0.1)',
+                tension: 0.3,
+                fill: true,
+                pointRadius: 3,
+                pointHoverRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#333',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'USD',
+                        color: '#555'
+                    },
+                    ticks: {
+                        color: '#555'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha',
+                        color: '#555'
+                    },
+                    ticks: {
+                        color: '#555'
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -4,6 +4,7 @@ import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.AccountDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.request.OrderDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.AccountResponseDTO;
 import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.AccountTradingDetailDTO;
+import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.PortfolioHistoryDTO;
 import co.edu.unbosque.LaForestaTrading.exception.OrderException;
 import co.edu.unbosque.LaForestaTrading.exception.UserException;
 import co.edu.unbosque.LaForestaTrading.service.external.interfaces.IAlpacaService;
@@ -134,6 +135,26 @@ public class AlpacaServiceImpl implements IAlpacaService {
                         HttpMethod.GET,
                         request,
                         AccountTradingDetailDTO.class
+                );
+        return response
+                .getBody();
+    }
+
+    @Override
+    public PortfolioHistoryDTO getPortfolioHistory(String accountId) {
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth(apiKey, apiSecret);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        ResponseEntity<PortfolioHistoryDTO> response = restTemplate
+                .exchange(
+                        baseUrl + "/trading/accounts/" + accountId + "/account/portfolio/history",
+                        HttpMethod.GET,
+                        request,
+                        PortfolioHistoryDTO.class
                 );
         return response
                 .getBody();
