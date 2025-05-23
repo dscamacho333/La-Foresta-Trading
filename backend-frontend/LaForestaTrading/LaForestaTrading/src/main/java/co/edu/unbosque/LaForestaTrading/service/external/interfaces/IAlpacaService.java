@@ -20,4 +20,6 @@ public interface IAlpacaService {
 
     PortfolioHistoryDTO getPortfolioHistory(String accountId);
 
+
+
 }
