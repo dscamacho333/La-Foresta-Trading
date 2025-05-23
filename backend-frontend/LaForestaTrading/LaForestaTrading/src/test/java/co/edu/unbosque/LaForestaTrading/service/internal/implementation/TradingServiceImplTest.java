@@ -10,6 +10,7 @@ import co.edu.unbosque.LaForestaTrading.exception.UserException;
 import co.edu.unbosque.LaForestaTrading.repository.IOrderRepository;
 import co.edu.unbosque.LaForestaTrading.repository.IUserRepository;
 import co.edu.unbosque.LaForestaTrading.service.external.interfaces.IAlpacaService;
+import co.edu.unbosque.LaForestaTrading.service.internal.interfaces.IEmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.modelmapper.ModelMapper;
@@ -17,7 +18,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +31,8 @@ public class TradingServiceImplTest {
     private IOrderRepository orderRepo;
     private IAlpacaService alpacaService;
     private PasswordEncoder passwordEncoder;
-    private TradingServiceImpl service;
+    private TradingServiceImpl tradingService;
+    private IEmailService emailService;
     private ModelMapper modelMapper;
 
     @BeforeEach
@@ -39,9 +40,10 @@ public class TradingServiceImplTest {
         userRepo = mock(IUserRepository.class);
         orderRepo = mock(IOrderRepository.class);
         alpacaService = mock(IAlpacaService.class);
+        emailService =  mock(IEmailService.class);
         passwordEncoder = mock(PasswordEncoder.class);
         modelMapper = new ModelMapper();
-        service = new TradingServiceImpl(userRepo, orderRepo, modelMapper, alpacaService, passwordEncoder);
+        tradingService = new TradingServiceImpl(userRepo, orderRepo, modelMapper, alpacaService, emailService, passwordEncoder);
     }
 
     @Test
@@ -53,7 +55,7 @@ public class TradingServiceImplTest {
         when(userRepo.save(any(Investor.class))).thenReturn(new Investor());
         when(passwordEncoder.encode(anyString())).thenReturn("hashed");
 
-        boolean result = service.register(dto, "password123");
+        boolean result = tradingService.register(dto, "password123");
 
         assertTrue(result);
         verify(userRepo).save(any(Investor.class));
@@ -64,7 +66,7 @@ public class TradingServiceImplTest {
         when(userRepo.findByTaxId(anyString())).thenReturn(new Investor());
 
         UserException ex = assertThrows(UserException.class, () ->
-                service.register(buildDummyAccountDTO(), "pwd"));
+                tradingService.register(buildDummyAccountDTO(), "pwd"));
         assertEquals("Número de identificación duplicado", ex.getMessage());
     }
 
@@ -77,7 +79,7 @@ public class TradingServiceImplTest {
         doThrow(DataIntegrityViolationException.class).when(userRepo).save(any());
 
         assertThrows(UserException.class, () ->
-                service.register(buildDummyAccountDTO(), "pwd"));
+                tradingService.register(buildDummyAccountDTO(), "pwd"));
     }
 
     @Test
@@ -94,7 +96,7 @@ public class TradingServiceImplTest {
         when(userRepo.findByAlpacaStatus("SUBMITTED")).thenReturn(List.of(investor));
         when(alpacaService.getAnAccountById("acc123")).thenReturn(active);
 
-        service.verificarCuentasPendientes();
+        tradingService.verificarCuentasPendientes();
 
         verify(userRepo).save(any(Investor.class));
     }
@@ -112,7 +114,7 @@ public class TradingServiceImplTest {
         when(userRepo.findByAlpacaStatus("SUBMITTED")).thenReturn(List.of(investor));
         when(alpacaService.getAnAccountById("acc123")).thenReturn(response);
 
-        service.verificarCuentasPendientes();
+        tradingService.verificarCuentasPendientes();
 
         verify(userRepo, never()).save(any());
     }
@@ -134,7 +136,7 @@ public class TradingServiceImplTest {
         when(alpacaService.createAnOrderForAnAccount(any(OrderDTO.class), anyString())).thenReturn(dto);
         when(orderRepo.save(any(Order.class))).thenReturn(savedOrder);
 
-        OrderDTO result = service.executeOrder(dto, investorId);
+        OrderDTO result = tradingService.executeOrder(dto, investorId);
 
         assertNotNull(result);
         assertEquals("AAPL", result.getSymbol());
@@ -145,7 +147,7 @@ public class TradingServiceImplTest {
         when(userRepo.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(OrderException.class, () ->
-                service.executeOrder(new OrderDTO(), 999L));
+                tradingService.executeOrder(new OrderDTO(), 999L));
     }
 
     @Test
@@ -159,7 +161,7 @@ public class TradingServiceImplTest {
 
         when(orderRepo.findByInvestorId(investorId)).thenReturn(List.of(order));
 
-        List<OrderDTO> result = service.listOrderdByInvestorId(investorId);
+        List<OrderDTO> result = tradingService.listOrderdByInvestorId(investorId);
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -173,7 +175,7 @@ public class TradingServiceImplTest {
 
         when(orderRepo.findByInvestorId(investorId)).thenReturn(Collections.emptyList());
 
-        List<OrderDTO> result = service.listOrderdByInvestorId(investorId);
+        List<OrderDTO> result = tradingService.listOrderdByInvestorId(investorId);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -205,7 +207,7 @@ public class TradingServiceImplTest {
         when(alpacaService.retriieveTradingDetailsForAnAccount("acc123")).thenReturn(detailDTO);
 
         // Act
-        service.verificarOrdenesPendientes();
+        tradingService.verificarOrdenesPendientes();
 
         // Assert
         assertEquals("filled", order.getStatus());
@@ -228,7 +230,7 @@ public class TradingServiceImplTest {
 
         when(userRepo.findById(userId)).thenReturn(Optional.of(investor));
 
-        BigDecimal result = service.getInvestorBuyingPower(userId);
+        BigDecimal result = tradingService.getInvestorBuyingPower(userId);
 
         assertEquals(expectedBuyingPower, result);
         verify(userRepo).findById(userId);
@@ -241,7 +243,7 @@ public class TradingServiceImplTest {
         when(userRepo.findById(userId)).thenReturn(Optional.empty());
 
         UserException ex = assertThrows(UserException.class, () -> {
-            service.getInvestorBuyingPower(userId);
+            tradingService.getInvestorBuyingPower(userId);
         });
 
         assertEquals("No hay plata!", ex.getMessage());
