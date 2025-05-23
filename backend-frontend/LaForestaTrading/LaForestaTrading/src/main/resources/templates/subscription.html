@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Suscripción Premium</title>
+    <link rel="stylesheet" href="/css/subscription.css">
+</head>
+<body>
+
+<nav class="top-nav">
+    <div class="nav-left">
+        <a th:href="@{/dashboard}" class="logo">
+            <img src="/img/logo/logoLaForesta.png" alt="Logo La Foresta">
+        </a>
+        <span class="nav-title">Planes Premium</span>
+    </div>
+</nav>
+
+<div class="plans-container">
+    <div class="card" onclick="mostrarFormulario('mensual')">
+        <h2>Plan Mensual</h2>
+        <p class="precio">$12 USD / mes</p>
+        <p>Acceso completo a herramientas de trading por 30 días.</p>
+        <button class="btn">Seleccionar</button>
+    </div>
+
+    <div class="card" onclick="mostrarFormulario('anual')">
+        <h2>Plan Anual</h2>
+        <p class="precio">$120 USD / año</p>
+        <p>Ahorra 20% comparado al plan mensual. Acceso por 12 meses.</p>
+        <button class="btn">Seleccionar</button>
+    </div>
+</div>
+
+<div class="form-container" id="formularioPago" style="display: none;">
+    <h3>Formulario de Pago</h3>
+
+    <p style="color: #333; font-size: 0.95rem;">
+        Serás redirigido a Stripe para completar el pago de forma segura.
+    </p>
+
+    <form id="stripeForm" th:action="@{/subscription/api/stripe/create-checkout-session}" method="POST">
+        <input type="hidden" name="userId" th:value="${#authentication.principal.id}" />
+        <input type="hidden" name="email" th:value="${#authentication.principal.email}" />
+        <input type="hidden" name="plan" id="planSeleccionado" />
+        <button type="submit" class="btn btn-pagar">Ir al pago</button>
+    </form>
+</div>
+
+<script>
+    function mostrarFormulario(plan) {
+        document.getElementById("formularioPago").style.display = "block";
+        document.getElementById("planSeleccionado").value = plan;
+        window.scrollTo({ top: document.getElementById("formularioPago").offsetTop, behavior: "smooth" });
+    }
+</script>
+
+</body>
+</html>
