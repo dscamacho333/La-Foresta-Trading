@@ -26,30 +26,30 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void testSendEmail_Success() {
-        emailService.sendEmail("test@mail.com", "Test Subject", "Test Body");
+    void testSendEmailSuccess() {
+        emailService.sendEmail("test@example.com", "Asunto", "Mensaje");
 
         ArgumentCaptor<SimpleMailMessage> captor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         verify(mailSender).send(captor.capture());
 
         SimpleMailMessage sent = captor.getValue();
-        assertEquals("test@mail.com", sent.getTo()[0]);
-        assertEquals("Test Subject", sent.getSubject());
-        assertEquals("Test Body", sent.getText());
+        assertEquals("test@example.com", sent.getTo()[0]);
+        assertEquals("Asunto", sent.getSubject());
+        assertEquals("Mensaje", sent.getText());
     }
 
     @Test
-    void testSendConfirmationEmail_Success() {
+    void testSendConfirmationEmailSuccess() {
+        Investor investor = new Investor();
+        investor.setEmail("cliente@test.com");
+
         Order order = new Order();
         order.setStatus("pending");
         order.setSide("buy");
         order.setType("market");
         order.setSymbol("AAPL");
-        order.setFilledAvgPrice("150.25");
-        order.setLocalCreationDate(LocalDateTime.of(2025, 5, 22, 10, 30));
-
-        Investor investor = new Investor();
-        investor.setEmail("investor@mail.com");
+        order.setFilledAvgPrice("190.00");
+        order.setLocalCreationDate(LocalDateTime.of(2025, 5, 23, 10, 30));
 
         emailService.sendConfirmationEmail(order, investor);
 
@@ -57,23 +57,53 @@ class EmailServiceImplTest {
     }
 
     @Test
-    void testSendConfirmationEmail_ThrowsExceptionIfOrderIsNull() {
+    void testSendConfirmationEmailFailsWithNullOrder() {
         Investor investor = new Investor();
-        investor.setEmail("investor@mail.com");
+        investor.setEmail("test@example.com");
 
-        assertThrows(EmailException.class, () -> emailService.sendConfirmationEmail(null, investor));
+        assertThrows(EmailException.class, () -> {
+            emailService.sendConfirmationEmail(null, investor);
+        });
     }
 
     @Test
-    void testSendConfirmationEmail_ThrowsExceptionIfInvestorIsNull() {
+    void testSendConfirmationEmailFailsWithNullInvestor() {
         Order order = new Order();
-        assertThrows(EmailException.class, () -> emailService.sendConfirmationEmail(order, null));
+        order.setSymbol("AAPL");
+
+        assertThrows(EmailException.class, () -> {
+            emailService.sendConfirmationEmail(order, null);
+        });
     }
 
     @Test
-    void testSendConfirmationEmail_ThrowsExceptionIfEmailIsNull() {
+    void testSendConfirmationForExecutedOrderSuccess() {
+        Investor investor = new Investor();
+        investor.setEmail("ejecutado@test.com");
+
         Order order = new Order();
-        Investor investor = new Investor(); // email is null
-        assertThrows(EmailException.class, () -> emailService.sendConfirmationEmail(order, investor));
+        order.setStatus("filled");
+        order.setSide("sell");
+        order.setType("limit");
+        order.setSymbol("MSFT");
+        order.setFilledAvgPrice("250.50");
+        order.setLocalCreationDate(LocalDateTime.of(2025, 5, 23, 12, 0));
+
+        emailService.sendConfirmationForExcutedOrder(order, investor);
+
+        verify(mailSender).send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    void testSendConfirmationForExecutedOrderFailsWithNullInvestorEmail() {
+        Investor investor = new Investor();
+        investor.setEmail(null);
+
+        Order order = new Order();
+        order.setSymbol("TSLA");
+
+        assertThrows(EmailException.class, () -> {
+            emailService.sendConfirmationForExcutedOrder(order, investor);
+        });
     }
 }

@@ -9,4 +9,6 @@ public interface IEmailService {
 
     void sendConfirmationEmail(Order order, Investor investor);
 
+    void sendConfirmationForExcutedOrder(Order order, Investor investor);
+
 }
