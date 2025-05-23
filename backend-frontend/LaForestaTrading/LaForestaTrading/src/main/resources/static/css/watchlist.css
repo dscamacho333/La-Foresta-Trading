@@ -1,0 +1,106 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f6f8fa;
+    color: #333;
+}
+
+/* Botón Crear */
+.create-container {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+#create-container button,
+#btn-crear-watchlist {
+    background-color: #ff6600;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#btn-crear-watchlist:hover {
+    background-color: #e65500;
+}
+
+/* Contenedor de todas las watchlists */
+.watchlists-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+    margin: 2rem;
+}
+
+/* Estilo individual del formulario watchlist */
+.watchlist-form {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.watchlist-form h3 {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #ff6600;
+}
+
+/* Grupo de entrada */
+.input-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.input-group input {
+    flex: 1;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.input-group button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.5rem 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.input-group button:hover {
+    background-color: #3a9c40;
+}
+
+/* Tarjetas de cotización */
+.quotes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.quote-card {
+    background-color: #fefefe;
+    border: 1px solid #ddd;
+    padding: 0.8rem;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.quote-card h4 {
+    margin: 0;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.quote-card p {
+    margin: 0.2rem 0;
+    font-size: 0.9rem;
+}

@@ -13,6 +13,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class AlpacaServiceImpl implements IAlpacaService {
@@ -97,7 +98,10 @@ public class AlpacaServiceImpl implements IAlpacaService {
                     .getBody();
         }
         catch (RestClientException e) {
-            throw new OrderException("Error al crear una orden, verifique que el simbolo es válido y que usted tenga fondos suficientes!");
+            throw new OrderException("Error al crear una orden, verifique lo siguiente: " + "\n" +
+                                     "1) Posee fondos suficientes." + "\n" +
+                                     "2) Simbolo de la acción es correcto" + "\n" +
+                                     "Nota: Algunos patrones de compra/venta no están permitidos!");
         }
     }
 
@@ -146,18 +150,26 @@ public class AlpacaServiceImpl implements IAlpacaService {
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(apiKey, apiSecret);
         headers.setContentType(MediaType.APPLICATION_JSON);
-
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
-        ResponseEntity<PortfolioHistoryDTO> response = restTemplate
-                .exchange(
-                        baseUrl + "/trading/accounts/" + accountId + "/account/portfolio/history",
-                        HttpMethod.GET,
-                        request,
-                        PortfolioHistoryDTO.class
-                );
-        return response
-                .getBody();
+        String url = UriComponentsBuilder
+                .fromHttpUrl(baseUrl + "/trading/accounts/" + accountId + "/account/portfolio/history")
+                .queryParam("timeframe", "1D")
+                .queryParam("start", "2025-03-22T18:38:01Z")
+                .queryParam("end", "2025-05-22T18:38:01Z")
+                .queryParam("pnl_reset", "per_day")
+                .queryParam("force_engine_version", "v2")
+                .build()
+                .toUriString();
+
+        ResponseEntity<PortfolioHistoryDTO> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                request,
+                PortfolioHistoryDTO.class
+        );
+
+        return response.getBody();
     }
 
 }

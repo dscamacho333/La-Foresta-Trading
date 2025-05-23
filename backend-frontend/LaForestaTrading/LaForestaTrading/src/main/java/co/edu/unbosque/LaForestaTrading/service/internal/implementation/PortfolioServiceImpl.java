@@ -4,11 +4,14 @@ import co.edu.unbosque.LaForestaTrading.dto.alpaca.response.PortfolioHistoryDTO;
 import co.edu.unbosque.LaForestaTrading.dto.position.PositionDTO;
 import co.edu.unbosque.LaForestaTrading.entity.Investor;
 import co.edu.unbosque.LaForestaTrading.entity.Order;
+import co.edu.unbosque.LaForestaTrading.entity.User;
 import co.edu.unbosque.LaForestaTrading.exception.UserException;
 import co.edu.unbosque.LaForestaTrading.repository.IOrderRepository;
 import co.edu.unbosque.LaForestaTrading.repository.IUserRepository;
 import co.edu.unbosque.LaForestaTrading.service.external.interfaces.IAlpacaService;
 import co.edu.unbosque.LaForestaTrading.service.internal.interfaces.IPortfolioService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -39,18 +42,23 @@ public class PortfolioServiceImpl implements IPortfolioService {
     public List<PositionDTO> getNetPositions() {
         List<Order> filledOrders = orderRepository.findByStatusNotIgnoreCase("accepted");
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = (Investor) auth.getPrincipal();
+
         Map<String, Integer> symbolQuantities = new HashMap<>();
+
+
 
         for (Order order : filledOrders) {
 
-            System.out.println("order = " + order);
-            
-            String symbol = order.getSymbol();
-            int quantity = Integer.valueOf(order.getQty());
-            if ("BUY".equalsIgnoreCase(order.getSide())) {
-                symbolQuantities.merge(symbol, quantity, Integer::sum);
-            } else if ("SELL".equalsIgnoreCase(order.getSide())) {
-                symbolQuantities.merge(symbol, -quantity, Integer::sum);
+            if(order.getInvestor().getEmail().equalsIgnoreCase(user.getEmail())){
+                String symbol = order.getSymbol();
+                int quantity = Integer.valueOf(order.getQty());
+                if ("BUY".equalsIgnoreCase(order.getSide())) {
+                    symbolQuantities.merge(symbol, quantity, Integer::sum);
+                } else if ("SELL".equalsIgnoreCase(order.getSide())) {
+                    symbolQuantities.merge(symbol, -quantity, Integer::sum);
+                }
             }
         }
 

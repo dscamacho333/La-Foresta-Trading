@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Watchlists</title>
+    <link rel="stylesheet" th:href="@{/css/watchlist.css}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+
+<!-- Botón Crear Watchlist -->
+<div class="create-container">
+    <button id="btn-crear-watchlist" onclick="crearWatchlist()">Crear Watchlist</button>
+</div>
+
+<!-- Contenedor principal -->
+<div id="watchlists-container" class="watchlists-container">
+    <!-- Aquí se agregarán los formularios dinámicamente con JS -->
+</div>
+
+<script>
+    let count = 0;
+
+    async function crearWatchlist() {
+        const response = await axios.post("/api/watchlists/create");
+        const watchlist = response.data;
+
+        const container = document.createElement('div');
+        container.className = 'watchlist-form';
+        container.id = `watchlist-${count}`;
+
+        container.innerHTML = `
+            <h3>${watchlist.name}</h3>
+            <div class="input-group">
+                <input type="text" placeholder="Símbolo (ej: AAPL)" id="symbol-input-${count}" />
+                <button onclick="agregarSymbol(${count}, '${watchlist.id}')">Agregar</button>
+            </div>
+            <div class="quotes-container" id="quotes-${count}"></div>
+        `;
+
+        document.getElementById('watchlists-container').appendChild(container);
+        count++;
+    }
+
+    async function agregarSymbol(index, watchlistId) {
+        const input = document.getElementById(`symbol-input-${index}`);
+        const symbol = input.value.trim();
+        if (!symbol) return;
+
+        try {
+            const response = await axios.get(`/api/quotes/${symbol}`);
+            const quote = response.data;
+
+            const card = document.createElement('div');
+            card.className = 'quote-card';
+            card.innerHTML = `
+                <h4>${quote.symbol}</h4>
+                <p><strong>Open:</strong> ${quote.open}</p>
+                <p><strong>High:</strong> ${quote.high}</p>
+                <p><strong>Low:</strong> ${quote.low}</p>
+                <p><strong>Price:</strong> ${quote.price}</p>
+                <p><strong>Previous Close:</strong> ${quote.previousClose}</p>
+                <p><strong>Change:</strong> ${quote.change} (${quote.changePercent})</p>
+                <p><strong>Volume:</strong> ${quote.volume}</p>
+                <p><strong>Latest Day:</strong> ${quote.latestTradingDay}</p>
+            `;
+            document.getElementById(`quotes-${index}`).appendChild(card);
+            input.value = '';
+        } catch (e) {
+            alert('No se pudo obtener la cotización.');
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -35,7 +35,7 @@ public class StripeSubscriptionServiceImpl implements IStripeSubscriptionService
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
                 .setMode(SessionCreateParams.Mode.SUBSCRIPTION)
                 .setSuccessUrl("http://localhost:8080/subscription/success")
-                .setCancelUrl("http://localhost:8080/subscription/cancel")
+                .setCancelUrl("http://localhost:8080/subscription/error")
                 .addLineItem(SessionCreateParams.LineItem.builder()
                         .setPrice(priceId)
                         .setQuantity(1L)
