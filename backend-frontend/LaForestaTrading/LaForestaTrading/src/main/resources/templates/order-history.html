@@ -38,7 +38,7 @@
 
             <div class="order-detail-row"><span>Acción:</span><span th:text="${order.side.toUpperCase()}"></span></div>
             <div class="order-detail-row"><span>Símbolo:</span><span th:text="${order.symbol.toUpperCase()}"></span></div>
-            <div class="order-detail-row"><span>Cantidad:</span><span th:text="${order.filledQty}"></span></div>
+            <div class="order-detail-row"><span>Cantidad:</span><span th:text="${order.qty}"></span></div>
             <div class="order-detail-row"><span>Tipo de orden:</span><span th:text="${order.type.toUpperCase()}"></span></div>
             <div class="order-detail-row"><span>Time in Force:</span><span th:text="${order.timeInForce.toUpperCase()}"></span></div>
             <div class="order-detail-row"><span>Precio:</span><span th:text="${order.filledAvgPrice != null ? order.filledAvgPrice : 'N/A'}"></span></div>

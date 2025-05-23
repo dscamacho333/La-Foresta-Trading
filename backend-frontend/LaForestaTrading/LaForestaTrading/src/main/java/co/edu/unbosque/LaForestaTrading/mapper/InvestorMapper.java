@@ -71,7 +71,7 @@ public class InvestorMapper {
 
         investorBase.setBuyingPower(BigDecimal.ZERO);
         investorBase.setStocksOfInterest("");
-        investorBase.setPremium(false);
+        investorBase.setPremium(true);
 
         esSoloNumeros(investorBase.getTaxId());
         esMayorDeEdad(investorBase.getDateOfBirth());
